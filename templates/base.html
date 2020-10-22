@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+</head>
+<body>
+    <div class="topnav">
+        <a class="active" href="/">Стартовая страница</a>
+		{% if user.is_authenticated %}
+			<a href="{% url 'logout' %}">Выход</a>
+		{% else %}	
+			<a href="{% url 'login' %}">Вход</a>
+		{% endif  %}
+    </div>
+
+    {% if user.is_authenticated %}
+		<p>Добро пожаловать, {{ user.username }}<br>
+	{% else %}
+		<p>Вы не в системе.</p><br>
+	{% endif  %}
+
+	{% block content %}
+
+    {% endblock content %}
+</body>
+</html>

@@ -21,6 +21,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'crispy_forms',
+    'polls_app.apps.PollsAppConfig',
 ]
 
 MIDDLEWARE = [
@@ -86,4 +89,7 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'index'
