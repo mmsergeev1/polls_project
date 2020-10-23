@@ -3,33 +3,18 @@
 {% load static %}
 
 {% block title %}
-    {% if user.is_authenticated %}
-        Личный кабинет
-	{% else %}
-		Система опросов
-	{% endif  %}
+    Система опросов
 {% endblock %}
 
 {% block content %}
-
-    {% if user.is_authenticated %}
-        {% if latest_polls_list %}
-            <p>Вы в системе, опросы:</p><br>
-            <ul>
-            {% for poll in latest_polls_list %}
-                <li><a href="{% url 'polls_app:details' poll.id %}">{{ poll.question_text }}</a></li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>Нет доступных опросов</p>
-        {% endif %}
+    {% if latest_polls_list %}
+        <p>Активные опросы:</p><br>
+        <ul>
+        {% for poll in latest_polls_list %}
+            <li><a href="{% url 'polls_app:details' poll.id %}">{{ poll.question_text }}</a></li>
+        {% endfor %}
+        </ul>
     {% else %}
-		    <p>Для пользования сервисом войдите в личный кабинет.</p>
-	    {% endif  %}
-
-    <br>
-    <br>
-    <h1>Система обработки и сохранения данных об опросах.</h1>
-    <p>Здесь будет описание продукта для будущих пользователей</p>
-
+        <p>Нет доступных опросов</p>
+    {% endif %}
 {% endblock %}

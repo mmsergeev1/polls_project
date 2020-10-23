@@ -6,77 +6,48 @@ from .models import Question
 import datetime
 
 
-def create_question(question_text, days):
+def create_question(question_text, days, days_till_expiration):
     time = timezone.now() + datetime.timedelta(days=days)
-    return Question.objects.create(question_text=question_text, date_published=time)
+    time_till_expiration = time + datetime.timedelta(days=days_till_expiration)
+    return Question.objects.create(question_text=question_text, date_published=time, date_end=time_till_expiration)
 
 
 class QuestionIndexViewTests(TestCase):
-    def setUp(self):
-        self.client.login(username='test', password='test')
-        self.user = User.objects.get(username='test')
-
-    def test_not_logged_on(self):
-        """
-        If no questions exist, an appropriate message is displayed.
-        """
-        response = self.client.get(reverse('polls_app:index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Для пользования сервисом войдите в личный кабинет.")
-
     def test_no_questions(self):
         """
         If no questions exist, an appropriate message is displayed.
         """
-        response = self.client.get(reverse('polls:index'))
+        response = self.client.get(reverse('polls_app:index'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Нет доступных опросов")
         self.assertQuerysetEqual(response.context['latest_polls_list'], [])
 
-    def test_past_question(self):
+    def test_past_expired_question(self):
         """
         Questions with a pub_date in the past are displayed on the
         index page.
         """
-        create_question(question_text="Старый вопрос", days=-30)
+        create_question(question_text="Старый вопрос", days=-30, days_till_expiration=-7)
         response = self.client.get(reverse('polls_app:index'))
-        self.assertQuerysetEqual(
-            response.context['latest_polls_list'],
-            ['<Question: Старый вопрос>']
-        )
-
-    def test_future_question(self):
-        """
-        Questions with a pub_date in the future aren't displayed on
-        the index page.
-        """
-        self.client.login(username='test', password='test')
-        create_question(question_text="Вопрос из будущего", days=30)
-        response = self.client.get(reverse('polls_app:index'))
-        self.assertContains(response, "Нет доступных опросов")
         self.assertQuerysetEqual(response.context['latest_polls_list'], [])
-
-    def test_future_question_and_past_question(self):
-        """
-        Even if both past and future questions exist, only past questions
-        are displayed.
-        """
-        create_question(question_text="Старый вопрос", days=-30)
-        create_question(question_text="Вопрос из будущего", days=30)
-        response = self.client.get(reverse('polls_app:index'))
-        self.assertQuerysetEqual(
-            response.context['latest_polls_list'],
-            ['<Question: Старый вопрос>']
-        )
 
     def test_two_past_questions(self):
         """
         The questions index page may display multiple questions.
         """
-        create_question(question_text="Старый вопрос 1.", days=-30)
-        create_question(question_text="Старый вопрос 2.", days=-5)
+        create_question(question_text="Старый вопрос 1.", days=-30, days_till_expiration=-7)
+        create_question(question_text="Старый вопрос 2.", days=-5, days_till_expiration=-7)
         response = self.client.get(reverse('polls_app:index'))
-        self.assertQuerysetEqual(
-            response.context['latest_polls_list'],
-            ['<Question: Старый вопрос 2.>', '<Question: Старый вопрос 1.>']
-        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Нет доступных опросов")
+        self.assertQuerysetEqual(response.context['latest_polls_list'], [])
+
+    def test_currently_active_poll(self):
+        """
+        The questions index page may display multiple questions.
+        """
+        create_question(question_text="Активный опрос", days=-5, days_till_expiration=7)
+        response = self.client.get(reverse('polls_app:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Активные опросы:")
+        self.assertQuerysetEqual(response.context['latest_polls_list'], ['<Question: Активный опрос>'])

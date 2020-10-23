@@ -11,9 +11,7 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_polls_list'
 
     def get_queryset(self):
-        return Question.objects.filter(
-            date_published__lte=timezone.now()
-        ).order_by('-date_published')[:5]
+        return Question.objects.all().filter(date_published__lte=timezone.now(), date_end__gte=timezone.now())
 
 
 class DetailsView(generic.DetailView):

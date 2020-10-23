@@ -9,20 +9,8 @@
 <body>
     <div class="topnav">
         <a class="active" href="/">Стартовая страница</a>
-		{% if user.is_authenticated %}
-			<a href="{% url 'logout' %}">Выход</a>
-		{% else %}	
-			<a href="{% url 'login' %}">Вход</a>
-		{% endif  %}
     </div>
-
-    {% if user.is_authenticated %}
-		<p>Добро пожаловать, {{ user.username }}<br>
-	{% else %}
-		<p>Вы не в системе.</p><br>
-	{% endif  %}
-
-	{% block content %}
+    {% block content %}
 
     {% endblock content %}
 </body>

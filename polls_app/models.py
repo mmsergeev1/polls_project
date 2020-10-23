@@ -18,12 +18,17 @@ class Question(models.Model):
     date_end = models.DateTimeField('Дата окончания', default=timezone.now() + timedelta(7))
     answer_type = models.CharField('Тип ответа', max_length=2, choices=answer_types, default=text_field)
 
-    def __str__(self):
-        return self.question_text
-
     class Meta:
         verbose_name = 'Вопрос'
         verbose_name_plural = 'Вопросы'
+
+    def __str__(self):
+        return self.question_text
+
+    def save(self, new_image=False, *args, **kwargs):
+        if not self.id:
+            self.date_published = timezone.now()
+        super(Question, self).save(*args, **kwargs)
 
 
 class Choice(models.Model):
