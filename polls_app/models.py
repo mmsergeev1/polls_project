@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
@@ -33,8 +34,8 @@ class Question(models.Model):
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    votes = models.IntegerField(default=0)
-    choice = models.CharField(max_length=200)
+    votes = models.IntegerField('Количество голосов', default=0)
+    choice = models.CharField('Выбранный вариант ответа', max_length=200)
 
     def __str__(self):
         return self.choice
@@ -42,3 +43,10 @@ class Choice(models.Model):
     class Meta:
         verbose_name = 'Голос'
         verbose_name_plural = 'Голоса'
+
+
+class RegisteredVote(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    anonymous_user_id = models.IntegerField('Айди анонимного пользователя', default=0, blank=True)

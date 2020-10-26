@@ -1,6 +1,7 @@
 from pathlib import Path
-import os
 import dotenv
+import os
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
 
     'crispy_forms',
     'polls_app.apps.PollsAppConfig',
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [

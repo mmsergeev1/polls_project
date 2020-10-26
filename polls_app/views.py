@@ -3,7 +3,14 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.urls import reverse
 from django.views import generic
-from .models import Question, Choice
+
+import polls_app
+from polls_app.models import Question, Choice
+import logging
+
+
+logging.basicConfig(filename='app.log', filemode='a', format='%(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
 
 
 class IndexView(generic.ListView):
@@ -26,15 +33,41 @@ class ResultsView(generic.DetailView):
 
 def vote(request, question_id):
     poll = get_object_or_404(Question, pk=question_id)
-    try:
-        selected_choice = poll.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'polls_app/detail.html', {
-            'question': poll,
-            'error_message': "You didn't select a choice.",
-        })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
+    logging.debug(f'poll = {poll.answer_type}')
+    if poll.answer_type == 'CH':
+        try:
+            selected_choice = poll.choice_set.get(pk=request.POST['choice'])
+            logging.debug(f'selected_choice = {selected_choice.votes}')
+            logging.debug(f"request: {request.POST}")
+            selected_choice.votes += 1
+            selected_choice.save()
+            return HttpResponseRedirect(reverse('polls_app:results', args=(poll.id,)))
+        except (KeyError, Choice.DoesNotExist):
+            return render(request, 'polls_app/detail.html', {
+                'question': poll,
+                'error_message': "Выберите вариант ответа",
+            })
+    elif poll.answer_type == 'TE':
+        logging.debug(f"request: {request.POST}")
+        try:
+            selected_choice = poll.choice_set.get(choice=request.POST['choice'])
+            selected_choice.votes += 1
+            selected_choice.save()
+        except polls_app.models.Choice.DoesNotExist:
+            poll.choice_set.create(votes=1,
+                                   choice=request.POST['choice'])
         return HttpResponseRedirect(reverse('polls_app:results', args=(poll.id,)))
+    elif poll.answer_type == 'MU':
+        logging.debug(f"request: {request.POST}")
+        try:
+            for item in request.POST.getlist('choice'):
+                logging.debug(f"item: {item}, request.post.choice = {request.POST.getlist('choice')}")
+                selected_choice = poll.choice_set.get(pk=item)
+                selected_choice.votes += 1
+                selected_choice.save()
+            return HttpResponseRedirect(reverse('polls_app:results', args=(poll.id,)))
+        except (KeyError, Choice.DoesNotExist):
+            return render(request, 'polls_app/detail.html', {
+                'question': poll,
+                'error_message': "Выберите вариант ответа",
+            })

@@ -4,11 +4,29 @@
     <p><strong>{{ error_message }}</strong></p>
 {% endif %}
 
-<form action="{% url 'polls_app:vote' question.id %}" method="post">
-{% csrf_token %}
-{% for choice in question.choice_set.all %}
-    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
-    <label for="choice{{ forloop.counter }}">{{ choice.choice }}</label><br>
-{% endfor %}
-<input type="submit" value="Vote">
-</form>
+{% if question.answer_type == 'CH' %}
+    <form action="{% url 'polls_app:vote' question.id %}" method="post">
+        {% csrf_token %}
+        {% for choice in question.choice_set.all %}
+            <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+            <label for="choice{{ forloop.counter }}">{{ choice.choice }}</label><br>
+        {% endfor %}
+    <input type="submit" value="Vote">
+    </form>
+{% elif question.answer_type == 'MU' %}
+    <form action="{% url 'polls_app:vote' question.id %}" method="post">
+        {% csrf_token %}
+        {% for choice in question.choice_set.all %}
+            <input type="checkbox" name="choice" id="choice{{ forloop.counter }}" value={{ choice.pk }} />
+            <label for="choice{{ forloop.counter }}"><b>{{ choice.choice }}</b></label><br/>
+        {% endfor %}
+    <input type="submit" value="Vote">
+    </form>
+{% else %}
+    <form action="{% url 'polls_app:vote' question.id %}" method="post">
+        {% csrf_token %}
+        <label for="choice{{ forloop.counter }}">Введите свой вариант ответа:</label>
+        <input id="choice{{ forloop.counter }}" type="text" name="choice" value="">
+    <input type="submit" value="Vote">
+    </form>
+{% endif %}
