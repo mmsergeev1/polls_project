@@ -76,6 +76,17 @@ def vote(request, question_id):
         except polls_app.models.Choice.DoesNotExist:
             poll.choice_set.create(votes=1,
                                    choice=request.POST['choice'])
+            selected_choice = poll.choice_set.get(choice=request.POST['choice'])
+            if request.user.is_authenticated:
+                registered_vote = RegisteredVote.objects.create(question=poll,
+                                                                choice=selected_choice,
+                                                                user=request.user)
+                registered_vote.save()
+            else:
+                registered_vote = RegisteredVote.objects.create(question=poll,
+                                                                choice=selected_choice,
+                                                                anonymous_user_id=int(request.POST['user_id']))
+                registered_vote.save()
         return HttpResponseRedirect(reverse('polls_app:results', args=(poll.id,)))
     elif poll.answer_type == 'MU':
         logging.debug(f"request: {request.POST}")

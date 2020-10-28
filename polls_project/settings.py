@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'polls_app.apps.PollsAppConfig',
     'accounts.apps.AccountsConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
