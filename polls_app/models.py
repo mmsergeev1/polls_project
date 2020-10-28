@@ -49,4 +49,4 @@ class RegisteredVote(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    anonymous_user_id = models.IntegerField('Айди анонимного пользователя', default=0, blank=True)
+    anonymous_user_id = models.IntegerField('Айди анонимного пользователя', null=True, blank=True)

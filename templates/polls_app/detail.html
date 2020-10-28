@@ -11,6 +11,10 @@
             <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
             <label for="choice{{ forloop.counter }}">{{ choice.choice }}</label><br>
         {% endfor %}
+        {% if not user.is_authenticated %}
+            <label for="user_id">Введите числовой айди пользователя:</label>
+            <input id="user_id" type="text" name="user_id" value="">
+        {% endif %}
     <input type="submit" value="Vote">
     </form>
 {% elif question.answer_type == 'MU' %}
@@ -20,13 +24,21 @@
             <input type="checkbox" name="choice" id="choice{{ forloop.counter }}" value={{ choice.pk }} />
             <label for="choice{{ forloop.counter }}"><b>{{ choice.choice }}</b></label><br/>
         {% endfor %}
+        {% if not user.is_authenticated %}
+            <label for="user_id">Введите числовой айди пользователя:</label>
+            <input id="user_id" type="text" name="user_id" value="">
+        {% endif %}
     <input type="submit" value="Vote">
     </form>
 {% else %}
     <form action="{% url 'polls_app:vote' question.id %}" method="post">
         {% csrf_token %}
-        <label for="choice{{ forloop.counter }}">Введите свой вариант ответа:</label>
-        <input id="choice{{ forloop.counter }}" type="text" name="choice" value="">
+        <label for="choice">Введите свой вариант ответа:</label>
+        <input id="choice" type="text" name="choice" value=""><br>
+        {% if not user.is_authenticated %}
+            <label for="user_id">Введите числовой айди пользователя:</label>
+            <input id="user_id" type="text" name="user_id" value="">
+        {% endif %}
     <input type="submit" value="Vote">
     </form>
 {% endif %}
